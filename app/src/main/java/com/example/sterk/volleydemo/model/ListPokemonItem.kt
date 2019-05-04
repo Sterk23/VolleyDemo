@@ -10,4 +10,6 @@ data class ListPokemonItem(
         @SerializedName("results")
         val members: ArrayList<Pokemon>,
                            @SerializedName("next") val next: String,
-        @SerializedName("previos") val previous: String)
+        @SerializedName("previos") val previous: String){
+
+}
