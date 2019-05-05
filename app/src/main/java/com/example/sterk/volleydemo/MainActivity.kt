@@ -1,6 +1,7 @@
 package com.example.sterk.volleydemo
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -21,28 +22,24 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 
 
-
 class MainActivity : AppCompatActivity(), PokemonListener {
 
 
     private val TAG = "Mainactivity"
+    var i = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val progressBar = findViewById<ProgressBar>(R.id.progressBar)
-        var pokemonList:ArrayList<Pokemon>
-        getPokemonList(progressBar, object: VolleyCallback<ArrayList<Pokemon>>{
+        var pokemonList: ArrayList<Pokemon>
+        getPokemonList(progressBar, object : VolleyCallback<ArrayList<Pokemon>> {
             override fun onSuccess(list: ArrayList<Pokemon>) {
-//                for (pokemon in list) {
-//                    getDetailPokemon(pokemon)
-//                }
                 val pokemonAdapter = PokemonAdapter(list, null)
                 recyclerView.apply {
                     layoutManager = GridLayoutManager(context, 1, GridLayoutManager.VERTICAL, false)
                     isNestedScrollingEnabled = false
                     adapter = pokemonAdapter
                     onFlingListener = null
-
                 }
 
                 pokemonAdapter.notifyDataSetChanged()
@@ -54,7 +51,7 @@ class MainActivity : AppCompatActivity(), PokemonListener {
     }
 
     private val url: String = "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20"
-    private fun getPokemonList(progressBar: ProgressBar,callback: VolleyCallback<ArrayList<Pokemon>>) {
+    private fun getPokemonList(progressBar: ProgressBar, callback: VolleyCallback<ArrayList<Pokemon>>) {
         //initialize RequestQueue
         val mRequestQueue = Volley.newRequestQueue(this)
         //Initialize Request
@@ -62,7 +59,20 @@ class MainActivity : AppCompatActivity(), PokemonListener {
             //            Toast.makeText(this,"Response :" + response.toString(), Toast.LENGTH_LONG).show();//display the response on screen
             val list = Gson().fromJson(response, ListPokemonItem::class.java)
             val pokemonList = list.members
-            callback.onSuccess(pokemonList)
+
+            for (pokemon in pokemonList) {
+                val mJsonDetailRequest = StringRequest(Request.Method.GET, pokemon.url, Response.Listener<String> { response ->
+                    val detail = Gson().fromJson(response, PokemonDetail::class.java)
+                    pokemon.detail = detail
+                    i++
+                    if (i == pokemonList.size-1) {
+                        callback.onSuccess(pokemonList)
+                    }
+                    Log.d(TAG, "i = " + i)
+                }, Response.ErrorListener { error -> })
+                mRequestQueue.add(mJsonDetailRequest)
+
+            }
         }, Response.ErrorListener { error ->
 
         })

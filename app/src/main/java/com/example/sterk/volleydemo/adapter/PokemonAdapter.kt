@@ -30,11 +30,11 @@ class PokemonAdapter(private val items: ArrayList<Pokemon>?,
                 Picasso.get().load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+pokemon.getId()+".png").into(itemView.imgPokemon)
                 textPokemonName.text = pokemon.name.capitalize()
                 textPokemonType.text = "No."+pokemon.getId()
-//                var types:String=""
-//                for(poketypes in pokemon.detail.types){
-//                 types += poketypes.type.name + " "
-//                }
-//                textPokemonType.text
+                var types:String=""
+                for(poketypes in pokemon.detail.types){
+                 types += poketypes.type.name + " "
+                }
+                textPokemonType.text = types
             }
         }
     }
